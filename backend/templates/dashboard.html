@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_heading %}{% endblock %}
+
+{% block content %}
+<style>
+/* ── Dashboard Extra Styles ── */
+.dash-welcome {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 40%, #6d28d9 100%);
+  border-radius: 20px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(99,102,241,0.35);
+}
+
+.dash-welcome::before {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  top: -100px; right: 60px;
+  border-radius: 50%;
+}
+.dash-welcome::after {
+  content: '';
+  position: absolute;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+  bottom: -60px; right: 200px;
+  border-radius: 50%;
+}
+
+.welcome-text { position: relative; z-index: 2; }
+.welcome-text h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 24px; font-weight: 800;
+  color: white; margin: 0 0 6px;
+}
+.welcome-text p { font-size: 14px; color: rgba(255,255,255,0.72); margin: 0; }
+
+.welcome-badge {
+  position: relative; z-index: 2;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 14px;
+  padding: 14px 22px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+.welcome-badge .big-num { font-family: 'Sora', sans-serif; font-size: 32px; font-weight: 800; color: white; display: block; }
+.welcome-badge .badge-label { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* Stat cards - enhanced */
+.stat-grid-new {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card-new {
+  border-radius: 18px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.6);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: default;
+}
+.stat-card-new:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
+
+.stat-card-new.c1 { background: linear-gradient(135deg, #dbeafe, #eff6ff); }
+.stat-card-new.c2 { background: linear-gradient(135deg, #ede9fe, #faf5ff); }
+.stat-card-new.c3 { background: linear-gradient(135deg, #d1fae5, #ecfdf5); }
+.stat-card-new.c4 { background: linear-gradient(135deg, #fef3c7, #fffbeb); }
+
+.stat-icon-wrap {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  margin-bottom: 14px;
+}
+.c1 .stat-icon-wrap { background: rgba(99,102,241,0.15); }
+.c2 .stat-icon-wrap { background: rgba(139,92,246,0.15); }
+.c3 .stat-icon-wrap { background: rgba(16,185,129,0.15); }
+.c4 .stat-icon-wrap { background: rgba(245,158,11,0.15); }
+
+.stat-num {
+  font-family: 'Sora', sans-serif;
+  font-size: 34px; font-weight: 800;
+  color: #1e293b; margin: 0 0 4px;
+  line-height: 1;
+}
+.c1 .stat-num { color: #3730a3; }
+.c2 .stat-num { color: #6d28d9; }
+.c3 .stat-num { color: #065f46; }
+.c4 .stat-num { color: #92400e; }
+
+.stat-lbl {
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: #64748b; margin: 0 0 2px;
+}
+
+.stat-sub-new { font-size: 12px; color: #94a3b8; }
+
+/* Charts row */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.dash-card {
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
+  padding: 22px;
+}
+
+.dash-card-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.dash-card-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 15px; font-weight: 700; color: #1e293b;
+}
+
+.dash-card-badge {
+  font-size: 11px; font-weight: 700;
+  padding: 4px 10px; border-radius: 999px;
+  background: #eff6ff; color: #3730a3;
+  letter-spacing: 0.03em;
+}
+
+/* Bottom row */
+.bottom-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 18px;
+}
+
+/* Employee table */
+.emp-table { width: 100%; border-collapse: collapse; }
+.emp-table th {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: #94a3b8; font-weight: 700; padding: 0 0 10px;
+  text-align: left; border-bottom: 1px solid #f1f5f9;
+}
+.emp-table td { padding: 11px 0; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
+.emp-table tr:last-child td { border-bottom: none; }
+
+.emp-row-name { font-size: 13.5px; font-weight: 600; color: #1e293b; }
+.emp-row-code { font-size: 11.5px; color: #94a3b8; }
+.emp-row-dept { font-size: 12.5px; color: #64748b; }
+
+.mini-badge {
+  display: inline-block; padding: 3px 9px;
+  border-radius: 999px; font-size: 11px; font-weight: 700;
+}
+.mini-badge.active { background: #d1fae5; color: #065f46; }
+.mini-badge.inactive { background: #fef3c7; color: #92400e; }
+.mini-badge.resigned { background: #fee2e2; color: #991b1b; }
+
+/* Activity log */
+.activity-list { display: flex; flex-direction: column; gap: 12px; }
+.activity-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding-bottom: 12px; border-bottom: 1px solid #f8fafc;
+}
+.activity-item:last-child { border-bottom: none; padding-bottom: 0; }
+.activity-dot {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0; margin-top: 2px;
+}
+.activity-action { font-size: 13px; font-weight: 500; color: #1e293b; line-height: 1.4; }
+.activity-time { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+
+/* Dept progress bars */
+.dept-list { display: flex; flex-direction: column; gap: 14px; }
+.dept-item-label { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.dept-item-name { font-size: 13px; font-weight: 600; color: #1e293b; }
+.dept-item-count { font-size: 12px; color: #64748b; font-weight: 600; }
+.dept-bar-bg { height: 7px; background: #f1f5f9; border-radius: 999px; overflow: hidden; }
+.dept-bar-fill { height: 100%; border-radius: 999px; transition: width 1s ease; }
+
+@media (max-width: 1100px) {
+  .stat-grid-new { grid-template-columns: repeat(2,1fr); }
+  .charts-row, .bottom-row { grid-template-columns: 1fr; }
+}
+</style>
+
+<!-- Welcome Banner -->
+<div class="dash-welcome">
+  <div class="welcome-text">
+    <h2>Good day, {{ session.get('full_name', 'Admin') }}! 👋</h2>
+    <p>Here's what's happening in your organization today — Monday, 22 June 2026</p>
+  </div>
+  <div style="display:flex;gap:14px;position:relative;z-index:2;">
+    <div class="welcome-badge">
+      <span class="big-num">{{ total_employees }}</span>
+      <span class="badge-label">Active Staff</span>
+    </div>
+    <div class="welcome-badge">
+      <span class="big-num">{{ total_departments }}</span>
+      <span class="badge-label">Departments</span>
+    </div>
+    <div class="welcome-badge">
+      <span class="big-num">{{ new_this_month }}</span>
+      <span class="badge-label">New This Month</span>
+    </div>
+  </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="stat-grid-new">
+  <div class="stat-card-new c1">
+    <div class="stat-icon-wrap">👥</div>
+    <div class="stat-lbl">Active Employees</div>
+    <div class="stat-num">{{ total_employees }}</div>
+    <div class="stat-sub-new">Across all departments</div>
+  </div>
+  <div class="stat-card-new c2">
+    <div class="stat-icon-wrap">🏢</div>
+    <div class="stat-lbl">Departments</div>
+    <div class="stat-num">{{ total_departments }}</div>
+    <div class="stat-sub-new">Active business units</div>
+  </div>
+  <div class="stat-card-new c3">
+    <div class="stat-icon-wrap">💰</div>
+    <div class="stat-lbl">Monthly Payroll</div>
+    <div class="stat-num" style="font-size:26px;">₹{{ "{:,.0f}".format(total_payroll) }}</div>
+    <div class="stat-sub-new">Net total, active staff</div>
+  </div>
+  <div class="stat-card-new c4">
+    <div class="stat-icon-wrap">🆕</div>
+    <div class="stat-lbl">New Joiners</div>
+    <div class="stat-num">{{ new_this_month }}</div>
+    <div class="stat-sub-new">This month</div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="charts-row">
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <span class="dash-card-title">📊 Headcount by Department</span>
+      <span class="dash-card-badge">LIVE</span>
+    </div>
+    <canvas id="deptChart" height="140"></canvas>
+  </div>
+
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <span class="dash-card-title">⚥ Gender Distribution</span>
+    </div>
+    <canvas id="genderChart" height="140"></canvas>
+  </div>
+</div>
+
+<!-- Bottom Row -->
+<div class="bottom-row">
+
+  <!-- Recent Employees Table -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <span class="dash-card-title">🧑‍💼 Recently Added</span>
+      <a href="{{ url_for('employee_list') }}" style="font-size:12.5px;font-weight:700;color:#6366f1;text-decoration:none;">View all →</a>
+    </div>
+    <table class="emp-table">
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in recent_employees %}
+        <tr>
+          <td>
+            <div class="emp-row-name">{{ e.full_name }}</div>
+            <div class="emp-row-code">{{ e.emp_code }}</div>
+          </td>
+          <td class="emp-row-dept">{{ e.dept_name or '—' }}</td>
+          <td><span class="mini-badge {{ e.status|lower }}">{{ e.status }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" style="text-align:center;color:#94a3b8;padding:20px 0;">No employees yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Activity + Dept bars -->
+  <div style="display:flex;flex-direction:column;gap:18px;">
+
+    <!-- Dept progress bars -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <span class="dash-card-title">🏢 Department Strength</span>
+      </div>
+      <div class="dept-list">
+        {% set max_emp = dept_stats|map(attribute='total_employees')|max if dept_stats else 1 %}
+        {% for d in dept_stats %}
+        <div>
+          <div class="dept-item-label">
+            <span class="dept-item-name">{{ d.dept_name }}</span>
+            <span class="dept-item-count">{{ d.total_employees }} emp</span>
+          </div>
+          <div class="dept-bar-bg">
+            <div class="dept-bar-fill" style="width:{{ (d.total_employees / (max_emp if max_emp > 0 else 1) * 100)|int }}%; background: linear-gradient(90deg, #6366f1, #8b5cf6);"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <span class="dash-card-title">⚡ Recent Activity</span>
+      </div>
+      <div class="activity-list">
+        {% for log in recent_logs %}
+        <div class="activity-item">
+          <div class="activity-dot">⚡</div>
+          <div>
+            <div class="activity-action">{{ log.action }}</div>
+            <div class="activity-time">{{ log.full_name or 'System' }} · {{ log.log_time }}</div>
+          </div>
+        </div>
+        {% else %}
+        <div style="color:#94a3b8;font-size:13px;">No recent activity.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// Department Bar Chart
+const deptLabels = [{% for d in dept_stats %}"{{ d.dept_name }}",{% endfor %}];
+const deptCounts = [{% for d in dept_stats %}{{ d.total_employees }},{% endfor %}];
+
+new Chart(document.getElementById('deptChart'), {
+  type: 'bar',
+  data: {
+    labels: deptLabels,
+    datasets: [{
+      label: 'Employees',
+      data: deptCounts,
+      backgroundColor: [
+        'rgba(99,102,241,0.85)',
+        'rgba(139,92,246,0.85)',
+        'rgba(16,185,129,0.85)',
+        'rgba(245,158,11,0.85)',
+        'rgba(236,72,153,0.85)',
+      ],
+      borderRadius: 8,
+      borderSkipped: false,
+      maxBarThickness: 44,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1e293b',
+        titleColor: '#fff',
+        bodyColor: '#94a3b8',
+        padding: 12,
+        borderRadius: 10,
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true, ticks: { precision: 0, color: '#94a3b8', font: { size: 11 } },
+        grid: { color: '#f1f5f9' }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#64748b', font: { size: 11 } }
+      }
+    }
+  }
+});
+
+// Gender Doughnut Chart
+const genderLabels = [{% for g in gender_stats %}"{{ g.gender }}",{% endfor %}];
+const genderCounts = [{% for g in gender_stats %}{{ g.c }},{% endfor %}];
+
+new Chart(document.getElementById('genderChart'), {
+  type: 'doughnut',
+  data: {
+    labels: genderLabels,
+    datasets: [{
+      data: genderCounts,
+      backgroundColor: ['#6366f1', '#f59e0b', '#10b981'],
+      borderWidth: 3,
+      borderColor: '#fff',
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '65%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { boxWidth: 10, padding: 16, font: { size: 12 }, color: '#64748b' }
+      },
+      tooltip: {
+        backgroundColor: '#1e293b',
+        padding: 10, borderRadius: 8,
+      }
+    }
+  }
+});
+
+// Animate stat numbers
+document.querySelectorAll('.stat-num').forEach(el => {
+  const raw = el.textContent.replace(/[₹,]/g, '').trim();
+  const target = parseFloat(raw);
+  if (isNaN(target)) return;
+  const isRupee = el.textContent.includes('₹');
+  let start = 0;
+  const duration = 1200;
+  const step = (timestamp) => {
+    if (!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.floor(eased * target);
+    el.textContent = (isRupee ? '₹' : '') + current.toLocaleString('en-IN');
+    if (progress < 1) requestAnimationFrame(step);
+    else el.textContent = (isRupee ? '₹' : '') + target.toLocaleString('en-IN');
+  };
+  requestAnimationFrame(step);
+});
+</script>
+{% endblock %}

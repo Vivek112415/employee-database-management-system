@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if employee else 'Add' }} Employee{% endblock %}
+{% block page_heading %}{{ 'Edit Employee' if employee else 'Add New Employee' }}{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <form method="POST" enctype="multipart/form-data">
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label>Employee Code</label>
+        <input type="text" name="emp_code" value="{{ employee.emp_code if employee else '' }}"
+               {{ 'readonly' if employee }} required placeholder="e.g. EMP006">
+      </div>
+
+      <div class="form-group">
+        <label>Status</label>
+        <select name="status">
+          <option value="Active" {{ 'selected' if employee and employee.status=='Active' }}>Active</option>
+          <option value="Inactive" {{ 'selected' if employee and employee.status=='Inactive' }}>Inactive</option>
+          <option value="Resigned" {{ 'selected' if employee and employee.status=='Resigned' }}>Resigned</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" name="first_name" value="{{ employee.first_name if employee else '' }}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" name="last_name" value="{{ employee.last_name if employee else '' }}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" value="{{ employee.email if employee else '' }}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" name="phone" value="{{ employee.phone if employee else '' }}" pattern="[0-9]{10}" maxlength="10">
+      </div>
+
+      <div class="form-group">
+        <label>Gender</label>
+        <select name="gender">
+          <option value="Male" {{ 'selected' if employee and employee.gender=='Male' }}>Male</option>
+          <option value="Female" {{ 'selected' if employee and employee.gender=='Female' }}>Female</option>
+          <option value="Other" {{ 'selected' if employee and employee.gender=='Other' }}>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <input type="date" name="dob" value="{{ employee.dob if employee else '' }}">
+      </div>
+
+      <div class="form-group">
+        <label>Department</label>
+        <select name="dept_id">
+          <option value="">Select department</option>
+          {% for d in departments %}
+          <option value="{{ d.dept_id }}" {{ 'selected' if employee and employee.dept_id == d.dept_id }}>{{ d.dept_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Designation</label>
+        <input type="text" name="designation" value="{{ employee.designation if employee else '' }}" placeholder="e.g. Software Engineer">
+      </div>
+
+      <div class="form-group">
+        <label>Date of Joining</label>
+        <input type="date" name="date_of_joining" value="{{ employee.date_of_joining if employee else '' }}">
+      </div>
+
+      <div class="form-group">
+        <label>Profile Photo</label>
+        <input type="file" name="photo" accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label>Basic Salary (₹)</label>
+        <input type="number" step="0.01" name="basic_salary" value="{{ employee.basic_salary if employee else 0 }}">
+      </div>
+
+      <div class="form-group">
+        <label>Allowance (₹)</label>
+        <input type="number" step="0.01" name="allowance" value="{{ employee.allowance if employee else 0 }}">
+      </div>
+
+      <div class="form-group">
+        <label>Deduction (₹)</label>
+        <input type="number" step="0.01" name="deduction" value="{{ employee.deduction if employee else 0 }}">
+      </div>
+
+      <div class="form-group full">
+        <label>Address</label>
+        <textarea name="address" rows="2">{{ employee.address if employee else '' }}</textarea>
+      </div>
+
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:24px;">
+      <button type="submit" class="btn btn-primary">{{ 'Save Changes' if employee else 'Add Employee' }}</button>
+      <a href="{{ url_for('employee_list') }}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}EDMS{% endblock %} | Employee Database Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+
+{% if session.get('user_id') %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">ED</div>
+      <div class="brand-text">
+        <span class="brand-title">EDMS</span>
+        <span class="brand-sub">Employee Database</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-item {{ 'active' if request.endpoint == 'dashboard' }}">
+        <span class="nav-icon">⬚</span> Dashboard
+      </a>
+      <a href="{{ url_for('employee_list') }}" class="nav-item {{ 'active' if request.endpoint in ['employee_list','employee_add','employee_edit','employee_view'] }}">
+        <span class="nav-icon">☰</span> Employees
+      </a>
+      <a href="{{ url_for('departments') }}" class="nav-item {{ 'active' if request.endpoint == 'departments' }}">
+        <span class="nav-icon">▤</span> Departments
+      </a>
+      <a href="{{ url_for('attendance') }}" class="nav-item {{ 'active' if request.endpoint == 'attendance' }}">
+        <span class="nav-icon">◷</span> Attendance
+      </a>
+      <a href="{{ url_for('reports') }}" class="nav-item {{ 'active' if request.endpoint == 'reports' }}">
+        <span class="nav-icon">◫</span> Reports
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">{{ session.get('full_name','U')[0] }}</div>
+        <div class="user-meta">
+          <span class="user-name">{{ session.get('full_name') }}</span>
+          <span class="user-role">{{ session.get('role')|capitalize }}</span>
+        </div>
+      </div>
+      <a href="{{ url_for('logout') }}" class="logout-link">Sign out</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <h1 class="page-heading">{% block page_heading %}{% endblock %}</h1>
+      <div class="topbar-right">
+        <span class="date-badge">{{ "now"|string }}</span>
+      </div>
+    </div>
+
+    <div class="flash-stack">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <div class="content-area">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% else %}
+  {% block auth_content %}{% endblock %}
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

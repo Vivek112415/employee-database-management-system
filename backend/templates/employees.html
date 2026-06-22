@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Employees{% endblock %}
+{% block page_heading %}Employees{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">{{ total }} total employees</span>
+    <div style="display:flex;gap:10px;">
+      <a href="{{ url_for('export_excel') }}" class="btn btn-outline btn-sm">⬇ Excel</a>
+      <a href="{{ url_for('export_pdf') }}" class="btn btn-outline btn-sm">⬇ PDF</a>
+      {% if session.get('role') in ['admin','hr'] %}
+      <a href="{{ url_for('employee_add') }}" class="btn btn-primary btn-sm">+ Add Employee</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <form class="search-bar" method="GET" action="{{ url_for('employee_list') }}">
+    <input type="text" name="q" value="{{ search }}" placeholder="Search by name, code or email...">
+    <select name="dept">
+      <option value="">All Departments</option>
+      {% for d in departments %}
+      <option value="{{ d.dept_name }}" {{ 'selected' if dept_filter == d.dept_name }}>{{ d.dept_name }}</option>
+      {% endfor %}
+    </select>
+    <select name="status">
+      <option value="">All Status</option>
+      <option value="Active" {{ 'selected' if status_filter == 'Active' }}>Active</option>
+      <option value="Inactive" {{ 'selected' if status_filter == 'Inactive' }}>Inactive</option>
+      <option value="Resigned" {{ 'selected' if status_filter == 'Resigned' }}>Resigned</option>
+    </select>
+    <button type="submit" class="btn btn-outline btn-sm">Filter</button>
+    {% if search or dept_filter or status_filter %}
+    <a href="{{ url_for('employee_list') }}" class="btn btn-outline btn-sm">Clear</a>
+    {% endif %}
+  </form>
+
+  {% if employees %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th><th>Department</th><th>Designation</th>
+          <th>Net Salary</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in employees %}
+        <tr>
+          <td class="emp-cell">
+            <img class="avatar-sm" src="{{ url_for('static', filename='uploads/' ~ e.photo) }}" onerror="this.src='{{ url_for('static', filename='uploads/default.png') }}'">
+            <div>
+              <div class="emp-name">{{ e.full_name }}</div>
+              <div class="emp-code">{{ e.emp_code }} · {{ e.email }}</div>
+            </div>
+          </td>
+          <td>{{ e.dept_name or '—' }}</td>
+          <td>{{ e.designation or '—' }}</td>
+          <td>₹{{ "{:,.0f}".format(e.net_salary or 0) }}</td>
+          <td><span class="badge badge-{{ e.status|lower }}">{{ e.status }}</span></td>
+          <td>
+            <div class="action-icons">
+              <a href="{{ url_for('employee_view', emp_id=e.emp_id) }}" class="btn btn-outline btn-icon" title="View">👁</a>
+              {% if session.get('role') in ['admin','hr'] %}
+              <a href="{{ url_for('employee_edit', emp_id=e.emp_id) }}" class="btn btn-outline btn-icon" title="Edit">✎</a>
+              {% endif %}
+              <a href="{{ url_for('salary_slip', emp_id=e.emp_id) }}" class="btn btn-outline btn-icon" title="Salary Slip">₹</a>
+              {% if session.get('role') == 'admin' %}
+              <form method="POST" action="{{ url_for('employee_delete', emp_id=e.emp_id) }}" onsubmit="return confirm('Delete this employee permanently?');" style="display:inline;">
+                <button type="submit" class="btn btn-danger btn-icon" title="Delete">🗑</button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <span>Page {{ page }} of {{ total_pages }}</span>
+    <div class="pagination-links">
+      {% for p in range(1, total_pages + 1) %}
+        <a class="page-link {{ 'current' if p == page }}"
+           href="{{ url_for('employee_list', page=p, q=search, dept=dept_filter, status=status_filter) }}">{{ p }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <h3>No employees found</h3>
+    <p>Try adjusting your search or filters, or add a new employee.</p>
+    {% if session.get('role') in ['admin','hr'] %}
+    <a href="{{ url_for('employee_add') }}" class="btn btn-primary">+ Add Employee</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

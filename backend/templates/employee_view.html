@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ employee.full_name }}{% endblock %}
+{% block page_heading %}Employee Profile{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="profile-header">
+    <img class="profile-avatar" src="{{ url_for('static', filename='uploads/' ~ employee.photo) }}" onerror="this.src='{{ url_for('static', filename='uploads/default.png') }}'">
+    <div>
+      <div class="profile-name">{{ employee.full_name }}</div>
+      <div class="profile-meta">{{ employee.designation or '—' }} · {{ employee.dept_name or '—' }}</div>
+      <span class="badge badge-{{ employee.status|lower }}" style="margin-top:8px;display:inline-block;">{{ employee.status }}</span>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:10px;">
+      <a href="{{ url_for('salary_slip', emp_id=employee.emp_id) }}" class="btn btn-outline btn-sm">₹ Salary Slip</a>
+      {% if session.get('role') in ['admin','hr'] %}
+      <a href="{{ url_for('employee_edit', emp_id=employee.emp_id) }}" class="btn btn-primary btn-sm">Edit</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <div class="detail-item"><span class="detail-label">Employee Code</span><span class="detail-value">{{ employee.emp_code }}</span></div>
+    <div class="detail-item"><span class="detail-label">Email</span><span class="detail-value">{{ employee.email }}</span></div>
+    <div class="detail-item"><span class="detail-label">Phone</span><span class="detail-value">{{ employee.phone or '—' }}</span></div>
+    <div class="detail-item"><span class="detail-label">Gender</span><span class="detail-value">{{ employee.gender or '—' }}</span></div>
+    <div class="detail-item"><span class="detail-label">Date of Birth</span><span class="detail-value">{{ employee.dob or '—' }}</span></div>
+    <div class="detail-item"><span class="detail-label">Date of Joining</span><span class="detail-value">{{ employee.date_of_joining or '—' }}</span></div>
+    <div class="detail-item"><span class="detail-label">Net Salary</span><span class="detail-value">₹{{ "{:,.0f}".format(employee.net_salary or 0) }}</span></div>
+    <div class="detail-item"><span class="detail-label">Address</span><span class="detail-value">{{ employee.address or '—' }}</span></div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-top:18px;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Recent Attendance</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for a in attendance %}
+          <tr><td>{{ a.att_date }}</td><td><span class="badge badge-active">{{ a.status }}</span></td></tr>
+          {% else %}
+          <tr><td colspan="2" style="text-align:center;color:var(--color-text-faint)">No records yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Salary Slip History</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Period</th><th>Net Salary</th></tr></thead>
+        <tbody>
+          {% for s in salary_history %}
+          <tr><td>{{ s.month }} {{ s.year }}</td><td>₹{{ "{:,.0f}".format(s.net_salary) }}</td></tr>
+          {% else %}
+          <tr><td colspan="2" style="text-align:center;color:var(--color-text-faint)">No slips generated yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

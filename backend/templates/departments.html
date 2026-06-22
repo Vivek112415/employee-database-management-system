@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Departments{% endblock %}
+{% block page_heading %}Departments{% endblock %}
+
+{% block content %}
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><span class="card-title">All Departments</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Department</th><th>Head</th><th>Employees</th><th>Avg Salary</th><th>Payroll</th><th></th></tr></thead>
+        <tbody>
+          {% for d in departments %}
+          <tr>
+            <td class="emp-name">{{ d.dept_name }}</td>
+            <td>{{ d.dept_head or '—' }}</td>
+            <td>{{ d.total_employees }}</td>
+            <td>₹{{ "{:,.0f}".format(d.avg_salary) }}</td>
+            <td>₹{{ "{:,.0f}".format(d.total_payroll) }}</td>
+            <td>
+              {% if session.get('role') == 'admin' %}
+              <form method="POST" action="{{ url_for('department_delete', dept_id=d.dept_id) }}" onsubmit="return confirm('Delete this department?');">
+                <button type="submit" class="btn btn-danger btn-icon" title="Delete">🗑</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" style="text-align:center;color:var(--color-text-faint)">No departments yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Add Department</span></div>
+    <form method="POST" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="form-group">
+        <label>Department Name</label>
+        <input type="text" name="dept_name" required placeholder="e.g. Research & Development">
+      </div>
+      <div class="form-group">
+        <label>Department Head</label>
+        <input type="text" name="dept_head" placeholder="e.g. Aarti Joshi">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" rows="3" placeholder="Brief description of department's role"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Department</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

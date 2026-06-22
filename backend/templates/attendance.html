@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Attendance{% endblock %}
+{% block page_heading %}Attendance{% endblock %}
+
+{% block content %}
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Today's Attendance ({{ today }})</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Employee</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for r in today_records %}
+          <tr>
+            <td class="emp-name">{{ r.first_name }} {{ r.last_name }} <span class="emp-code">({{ r.emp_code }})</span></td>
+            <td><span class="badge badge-active">{{ r.status }}</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="2" style="text-align:center;color:var(--color-text-faint)">No attendance marked today.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Mark Attendance</span></div>
+    <form method="POST" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="form-group">
+        <label>Employee</label>
+        <select name="emp_id" required>
+          <option value="">Select employee</option>
+          {% for e in employees %}
+          <option value="{{ e.emp_id }}">{{ e.first_name }} {{ e.last_name }} ({{ e.emp_code }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" name="att_date" value="{{ today }}" required>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select name="status" required>
+          <option value="Present">Present</option>
+          <option value="Absent">Absent</option>
+          <option value="Leave">Leave</option>
+          <option value="Half-Day">Half-Day</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Save Attendance</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

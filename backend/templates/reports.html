@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block page_heading %}Reports & Analytics{% endblock %}
+
+{% block content %}
+
+<div class="card" style="margin-bottom:18px;">
+  <div class="card-header">
+    <span class="card-title">Export Full Report</span>
+    <div style="display:flex;gap:10px;">
+      <a href="{{ url_for('export_excel') }}" class="btn btn-outline btn-sm">⬇ Download Excel</a>
+      <a href="{{ url_for('export_pdf') }}" class="btn btn-primary btn-sm">⬇ Download PDF</a>
+    </div>
+  </div>
+  <p style="font-size:13.5px;color:var(--color-text-soft);margin:0;">
+    Generate a complete employee master report including department, designation, and salary breakdown — ready to print or share.
+  </p>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Department-wise Payroll</span></div>
+    <canvas id="payrollChart" height="180"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">Salary Band Distribution</span></div>
+    <canvas id="bandChart" height="180"></canvas>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+const payrollLabels = [{% for d in dept_stats %}"{{ d.dept_name }}",{% endfor %}];
+const payrollData = [{% for d in dept_stats %}{{ d.total_payroll }},{% endfor %}];
+
+new Chart(document.getElementById('payrollChart'), {
+  type: 'bar',
+  data: {
+    labels: payrollLabels,
+    datasets: [{ label: 'Payroll (₹)', data: payrollData, backgroundColor: '#8B5CF6', borderRadius: 6 }]
+  },
+  options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#EEF1FA' } }, x: { grid: { display: false } } } }
+});
+
+const bandLabels = [{% for b in salary_bands %}"{{ b.band }}",{% endfor %}];
+const bandData = [{% for b in salary_bands %}{{ b.c }},{% endfor %}];
+
+new Chart(document.getElementById('bandChart'), {
+  type: 'pie',
+  data: {
+    labels: bandLabels,
+    datasets: [{ data: bandData, backgroundColor: ['#2E5BFF','#10B981','#F59E0B','#EF4444'], borderWidth: 0 }]
+  },
+  options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } } } }
+});
+</script>
+{% endblock %}

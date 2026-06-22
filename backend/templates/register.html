@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block extra_head %}
+<style>
+body { margin: 0; padding: 0; }
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  font-family: 'Inter', sans-serif;
+}
+
+/* LEFT PANEL - different gradient for register */
+.auth-left {
+  flex: 1;
+  background: linear-gradient(135deg, #0a4a2e, #065f46, #064e3b);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-left::before {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(16,185,129,0.3) 0%, transparent 70%);
+  top: -80px; right: -80px;
+  border-radius: 50%;
+  animation: pulse 7s ease-in-out infinite;
+}
+.auth-left::after {
+  content: '';
+  position: absolute;
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, rgba(52,211,153,0.2) 0%, transparent 70%);
+  bottom: -100px; left: -60px;
+  border-radius: 50%;
+  animation: pulse 9s ease-in-out infinite reverse;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+.auth-left-content { position: relative; z-index: 2; text-align: center; color: white; }
+
+.auth-logo-big {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, #10b981, #34d399);
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif;
+  font-size: 28px; font-weight: 800; color: white;
+  margin: 0 auto 24px;
+  box-shadow: 0 20px 40px rgba(16,185,129,0.4);
+}
+
+.auth-left h1 {
+  font-family: 'Sora', sans-serif;
+  font-size: 34px; font-weight: 800; margin: 0 0 12px;
+  background: linear-gradient(135deg, #fff, #a7f3d0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auth-left p { font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.7; max-width: 280px; margin: 0 auto 32px; }
+
+.roles-grid { display: flex; flex-direction: column; gap: 12px; }
+
+.role-card {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 14px;
+  backdrop-filter: blur(10px);
+  text-align: left;
+}
+
+.role-badge {
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.badge-admin { background: rgba(239,68,68,0.3); color: #fca5a5; }
+.badge-hr { background: rgba(16,185,129,0.3); color: #6ee7b7; }
+.badge-viewer { background: rgba(99,102,241,0.3); color: #c7d2fe; }
+
+.role-desc { font-size: 12.5px; color: rgba(255,255,255,0.75); }
+
+/* RIGHT PANEL */
+.auth-right {
+  width: 500px;
+  background: #ffffff;
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 44px;
+  overflow-y: auto;
+}
+
+.auth-form-box { width: 100%; }
+
+.top-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+
+.mini-logo {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, #10b981, #34d399);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 14px; color: white;
+  font-family: 'Sora', sans-serif;
+}
+
+.brand-name { font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 700; color: #1e293b; }
+.brand-name span { color: #10b981; }
+
+.form-heading { font-family: 'Sora', sans-serif; font-size: 24px; font-weight: 800; color: #1e293b; margin: 0 0 6px; }
+.form-subheading { font-size: 14px; color: #64748b; margin: 0 0 24px; }
+
+.new-flash { margin-bottom: 14px; }
+.new-flash .flash { padding: 11px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; }
+
+.new-form { display: flex; flex-direction: column; gap: 14px; }
+.new-form-group { display: flex; flex-direction: column; gap: 5px; }
+
+.new-form-group label {
+  font-size: 12px; font-weight: 700;
+  color: #374151; letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.input-wrap { position: relative; }
+.input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #9ca3af; pointer-events: none; }
+
+.new-form-group input,
+.new-form-group select {
+  width: 100%; padding: 11px 13px 11px 40px;
+  border: 1.5px solid #e5e7eb; border-radius: 10px;
+  font-size: 14px; color: #1e293b; background: #f9fafb;
+  transition: all 0.2s ease; font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
+
+.new-form-group select { padding-left: 40px; }
+
+.new-form-group input:focus,
+.new-form-group select:focus {
+  outline: none; border-color: #10b981;
+  background: #fff; box-shadow: 0 0 0 4px rgba(16,185,129,0.1);
+}
+
+.new-form-group input::placeholder { color: #9ca3af; }
+
+.btn-register {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white; border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif;
+  cursor: pointer; margin-top: 4px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(16,185,129,0.35);
+}
+
+.btn-register:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(16,185,129,0.45); }
+.btn-register:active { transform: translateY(0); }
+
+.form-footer { text-align: center; margin-top: 18px; font-size: 13.5px; color: #64748b; }
+.form-footer a { color: #10b981; font-weight: 700; text-decoration: none; }
+.form-footer a:hover { text-decoration: underline; }
+
+@media (max-width: 900px) {
+  .auth-left { display: none; }
+  .auth-right { width: 100%; }
+}
+</style>
+{% endblock %}
+
+{% block auth_content %}
+<div class="auth-page">
+
+  <!-- LEFT decorative panel -->
+  <div class="auth-left">
+    <div class="auth-left-content">
+      <div class="auth-logo-big">ED</div>
+      <h1>Join EDMS</h1>
+      <p>Create your account and start managing your organization's workforce efficiently.</p>
+
+      <div class="roles-grid">
+        <div class="role-card">
+          <span class="role-badge badge-admin">ADMIN</span>
+          <span class="role-desc">Full access — manage users, departments, all data</span>
+        </div>
+        <div class="role-card">
+          <span class="role-badge badge-hr">HR</span>
+          <span class="role-desc">Add & edit employees, mark attendance, generate slips</span>
+        </div>
+        <div class="role-card">
+          <span class="role-badge badge-viewer">VIEWER</span>
+          <span class="role-desc">Read-only access to view reports & employee info</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT register form -->
+  <div class="auth-right">
+    <div class="auth-form-box">
+
+      <div class="top-brand">
+        <div class="mini-logo">ED</div>
+        <span class="brand-name">EM<span>DS</span></span>
+      </div>
+
+      <h2 class="form-heading">Create Account ✨</h2>
+      <p class="form-subheading">Fill in your details to get started</p>
+
+      <div class="new-flash">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      <form class="new-form" method="POST" action="{{ url_for('register') }}">
+
+        <div class="new-form-group">
+          <label>Full Name</label>
+          <div class="input-wrap">
+            <span class="input-icon">😊</span>
+            <input type="text" name="full_name" placeholder="e.g. Priya Sharma" required>
+          </div>
+        </div>
+
+        <div class="new-form-group">
+          <label>Username</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" name="username" placeholder="Choose a unique username" required>
+          </div>
+        </div>
+
+        <div class="new-form-group">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <span class="input-icon">📧</span>
+            <input type="email" name="email" placeholder="you@company.com">
+          </div>
+        </div>
+
+        <div class="new-form-group">
+          <label>Role</label>
+          <div class="input-wrap">
+            <span class="input-icon">🛡</span>
+            <select name="role">
+              <option value="admin">Admin — Full Access</option>
+              <option value="hr" selected>HR — Manage Employees</option>
+              <option value="viewer">Viewer — Read Only</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="new-form-group">
+          <label>Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" name="password" placeholder="Min 6 characters" required minlength="6">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-register">Create Account →</button>
+      </form>
+
+      <div class="form-footer">
+        Already have an account? <a href="{{ url_for('login') }}">Sign in here</a>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
